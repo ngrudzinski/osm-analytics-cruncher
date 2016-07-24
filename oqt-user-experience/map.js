@@ -7,7 +7,7 @@ module.exports = function(tileLayers, tile, writeData, done) {
     var users = {};
 
     layer.features.forEach(function(val) {
-        var user = val.properties._uid;
+        var user = val.properties['@uid'];
         if (!users[user])
             users[user] = { objects:0, highways: 0.0, buildings: 0 };
         users[user].objects += 1;
