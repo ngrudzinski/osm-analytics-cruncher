@@ -17,6 +17,11 @@ WORKING_DIR=/mnt/data
 RESULTS_DIR=~/results
 SERVER_SCRIPT=/home/ubuntu/server/serve.js
 
+# clean up
+trap cleanup EXIT
+function cleanup {
+  rm -rf $WORKING_DIR/osm-analytics-cruncher
+}
 
 # init repo
 cd $WORKING_DIR
@@ -50,7 +55,3 @@ forever restart $SERVER_SCRIPT
 rm highways.mbtiles
 
 rm planet.mbtiles
-
-# clean up
-cd ..
-rm -rf osm-analytics-cruncher
