@@ -22,12 +22,12 @@ module.exports = function(tileLayers, tile, writeData, done) {
     // enhance with user experience data
     layer.features.forEach(function(feature) {
         var props = feature.properties;
+        var user = props['@uid'];
         feature.properties = {
-            _uid : props['@uid'],
+            _uid : user,
             _timestamp: props['@timestamp']
         };
         feature.properties[filter.tag] = props[filter.tag];
-        var user = feature.properties['@uid'];
         if (users[user] && users[user][filter.experience.field])
             feature.properties._userExperience = users[user][filter.experience.field]; // todo: include all/generic experience data?
     });
