@@ -1,7 +1,7 @@
 osm data analyis tool backend
 =============================
 
-Backend for an OSM data analysis tool. Uses [osm-qa-tiles](osmlab.github.io/osm-qa-tiles/) as input data.
+Backend for an OSM data analysis tool. Uses [osm-qa-tiles](https://osmlab.github.io/osm-qa-tiles/) as input data.
 
 Usage
 -----
