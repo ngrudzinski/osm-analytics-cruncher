@@ -42,14 +42,14 @@ curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz --sil
 # buildings
 ./crunch.sh planet.mbtiles buildings 64
 cp buildings.mbtiles $RESULTS_DIR/buildings.mbtiles.tmp
-rm $RESULTS_DIR/buildings.mbtiles
+rm $RESULTS_DIR/buildings.mbtiles -f
 mv $RESULTS_DIR/buildings.mbtiles.tmp $RESULTS_DIR/buildings.mbtiles
 forever restart $SERVER_SCRIPT
 rm buildings.mbtiles
 # highways
 ./crunch.sh planet.mbtiles highways 32
 cp highways.mbtiles $RESULTS_DIR/highways.mbtiles.tmp
-rm $RESULTS_DIR/highways.mbtiles
+rm $RESULTS_DIR/highways.mbtiles -f
 mv $RESULTS_DIR/highways.mbtiles.tmp $RESULTS_DIR/highways.mbtiles
 forever restart $SERVER_SCRIPT
 rm highways.mbtiles
