@@ -26,6 +26,7 @@
     "lineclip": "^1.1.5",
     "lodash": "^4.10.0",
     "mapbox-tile-copy": "^4.4.0",
+    "mapbox-upload": "^4.2.2",
     "mbtiles": "^0.8.2",
     "queue-async": "^1.2.1",
     "rbush": "^1.4.2",

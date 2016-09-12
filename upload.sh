@@ -5,5 +5,5 @@
 # export MapboxAccessToken=<access token with uploads:write scope enabled>
 # ./upload.sh rodowi
 
-npm install --global mapbox-upload
-mapbox-upload $1.osm-analytics-buildings buildings.mbtiles
+node_modules/mapbox-upload/bin/upload.js $1.osm-analytics-buildings buildings.mbtiles
+
