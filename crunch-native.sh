@@ -14,7 +14,7 @@ BINNINGFACTOR=${3:-64}
 cp empty.mbtiles out.mbtiles
 ./merge-mbtile.sh out.mbtiles $2.geom.*.mbtiles
 cp empty.mbtiles out.12.mbtiles
-./merge-mbtile.sh out.mbtiles $2.aggr.*.mbtiles
+./merge-mbtile.sh out.12.mbtiles $2.aggr.*.mbtiles
 
 # downscale bins to zoom levels 11 to 0
 for i in {11..0}; do

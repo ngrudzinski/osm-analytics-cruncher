@@ -190,16 +190,16 @@ function processMeta(tile, writeData, done) {
 
         // write to mbtiles output file
         var tileData = geojsonVt(output, {
-            maxZoom: 12,
+            maxZoom: 11,
             buffer: 0,
             tolerance: 1, // todo: faster if >0? (default is 3)
-            indexMaxZoom: 12
-        }).getTile(tile[2]-1, Math.floor(tile[0]/2), Math.floor(tile[1]/2));
+            indexMaxZoom: 11
+        }).getTile(tile[2], tile[0], tile[1]);
         if (tileData === null || tileData.features.length === 0) {
             done();
         } else {
             var pbfout = zlib.gzipSync(vtpbf.fromGeojsonVt({ 'osm': tileData }));
-            outMbtiles.putTile(tile[2]-1, Math.floor(tile[0]/2), Math.floor(tile[1]/2), pbfout, done);
+            outMbtiles.putTile(tile[2], tile[0], tile[1], pbfout, done);
         }
         //// write to stdout
         //writeData(JSON.stringify(output)+'\n');

@@ -86,26 +86,26 @@ module.exports = function _(tileLayers, tile, writeData, done) {
         }
     }
     var putTileQueue = queue(1);
-    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2, tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2, tile[1]*2+1);
+    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2,   tile[1]*2);
+    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2,   tile[1]*2+1);
     putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2+1);
     putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2, tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2, tile[1]*2+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2, tile[1]*2+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2, tile[1]*2+3);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+1, tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+1, tile[1]*2+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+1, tile[1]*2+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+1, tile[1]*2+3);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+2, tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+2, tile[1]*2+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+2, tile[1]*2+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+2, tile[1]*2+3);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+3, tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+3, tile[1]*2+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+3, tile[1]*2+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*2+3, tile[1]*2+3);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4+1);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4+2);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4+3);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4+1);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4+2);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4+3);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4+1);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4+2);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4+3);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4+1);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4+2);
+    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4+3);
     var resultQueue = queue();
     resultQueue.defer(putTileQueue.awaitAll);
     resultQueue.defer(function(done) {
