@@ -85,10 +85,11 @@ module.exports = function _(tileLayers, tile, writeData, done) {
         return done();
 
     var tilesIndex = geojsonVt(layer, {
-        maxZoom: 14,
+        maxZoom: 13,
+        extent: 4096*2,
         buffer: 0,
         tolerance: 1, // todo: faster if >0? (default is 3)
-        indexMaxZoom: 12
+        indexMaxZoom: 13
     });
     function putTile(z,x,y, done) {
         var tileData = tilesIndex.getTile(z, x, y);
@@ -104,22 +105,6 @@ module.exports = function _(tileLayers, tile, writeData, done) {
     putTileQueue.defer(putTile, tile[2]+1, tile[0]*2,   tile[1]*2+1);
     putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2+1);
     putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4,   tile[1]*4+3);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+1, tile[1]*4+3);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+2, tile[1]*4+3);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4+1);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4+2);
-    putTileQueue.defer(putTile, tile[2]+2, tile[0]*4+3, tile[1]*4+3);
     var resultQueue = queue();
     resultQueue.defer(putTileQueue.awaitAll);
     resultQueue.defer(function(done) {
