@@ -27,11 +27,11 @@ if (filter.experience.file)
 // Filter features touched by list of users defined by users.json
 module.exports = function _(tileLayers, tile, writeData, done) {
     if (!initialized) {
-        geomTiles = new MBTiles(filter.experience.field+'.geom.'+process.pid+'.mbtiles', function(err) {
+        geomTiles = new MBTiles((filter.id || filter.experience.field)+'.geom.'+process.pid+'.mbtiles', function(err) {
             if (err) return console.error('""""', err);
             geomTiles.startWriting(function(err) {
                 if (err) return console.error('####', err);
-                aggrTiles = new MBTiles(filter.experience.field+'.aggr.'+process.pid+'.mbtiles', function(err) {
+                aggrTiles = new MBTiles((filter.id || filter.experience.field)+'.aggr.'+process.pid+'.mbtiles', function(err) {
                     if (err) return console.error('""""', err);
                     aggrTiles.startWriting(function(err) {
                         if (err) return console.error('####', err);
@@ -47,11 +47,18 @@ module.exports = function _(tileLayers, tile, writeData, done) {
     var layer = tileLayers.osmqatiles.osm;
 
     // filter
+    function hasGeometry(feature, geometry) {
+        return typeof geometry == "string"
+            ? geometry === feature.geometry.type
+	    : geometry.includes(feature.geometry.type);
+    }
     function hasTag(feature, tag) {
-        return feature.properties[tag] && feature.properties[tag] !== 'no';
+        return typeof tag == "string"
+	    ? feature.properties[tag] && feature.properties[tag] !== 'no'
+	    : tag.some(tag => feature.properties[tag.key] === tag.value);
     }
     layer.features = layer.features.filter(function(feature) {
-        return feature.geometry.type === filter.geometry && hasTag(feature, filter.tag);
+        return hasGeometry(feature, filter.geometry) && hasTag(feature, filter.tag);
     });
 
     // enhance with user experience data
@@ -62,7 +69,14 @@ module.exports = function _(tileLayers, tile, writeData, done) {
             _uid : user,
             _timestamp: props['@timestamp']
         };
-        feature.properties[filter.tag] = props[filter.tag];
+        if (typeof filter.tag == "string") {
+          feature.properties[filter.tag] = props[filter.tag];
+        } else {
+          filter.tag.forEach(tag => {
+            if (props[tag.key])
+              feature.properties[tag.key] = props[tag.key];
+          });
+        }
         if (users[user] && users[user][filter.experience.field])
             feature.properties._userExperience = users[user][filter.experience.field]; // todo: include all/generic experience data?
     });
@@ -144,18 +158,23 @@ module.exports = function _(tileLayers, tile, writeData, done) {
 
         layer.features.forEach(function(feature) {
             var clipper,
-                geometry;
-            if (feature.geometry.type === 'LineString') {
-                clipper = lineclip.polyline;
                 geometry = feature.geometry.coordinates;
-            } else if (feature.geometry.type === 'Polygon') {
+            if (feature.geometry.type === 'Point') {
+                clipper = (coords, bbox) =>
+                    coords[0] > bbox[0] && coords[0] < bbox[2] && coords[1] > bbox[1] && coords[1] < bbox[3];
+            } else if (feature.geometry.type === 'LineString') {
+                clipper = lineclip.polyline;
+            } else if (feature.geometry.type === 'Polygon' && geometry.length === 1) {
                 clipper = lineclip.polygon;
-                geometry = feature.geometry.coordinates[0];
-            } else return;// todo: support more geometry types
+                geometry = geometry[0];
+            } else return;
+            // todo: handle polygons with holes (aka multipolygons)
+            // todo: support more geometry types
 
             var featureBbox = turf.extent(feature);
             var featureBins = binTree.search(featureBbox).filter(function(bin) {
-              return clipper(geometry, bin).length > 0;
+                var clipped = clipper(geometry, bin);
+                return clipped === true || clipped.length > 0;
             });
             featureBins.forEach(function(bin) {
                 var index = bin[4];
