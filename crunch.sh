@@ -10,7 +10,7 @@ BINNINGFACTOR=${3:-64}
 
 # apply filter, merge with user experience data, aggregate to bins
 # and create z13-z14 tiles for raw data
-./oqt-filter/index.js $1 $2.json
+./src/index.js $1 $2.json
 cp empty.mbtiles out.mbtiles
 ./merge-mbtile.sh out.mbtiles $2.geom.*.mbtiles
 cp empty.mbtiles out.12.mbtiles
@@ -18,7 +18,7 @@ cp empty.mbtiles out.12.mbtiles
 
 # downscale bins to zoom levels 11 to 0
 for i in {11..0}; do
-    ./oqt-filter/downscale.js out.$((i+1)).mbtiles $BINNINGFACTOR
+    ./src/downscale.js out.$((i+1)).mbtiles $BINNINGFACTOR
     cp empty.mbtiles out.$i.mbtiles
     ./merge-mbtile.sh out.$i.mbtiles out.tmp.*.mbtiles
 done
