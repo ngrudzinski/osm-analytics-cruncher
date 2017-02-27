@@ -86,7 +86,6 @@ module.exports = function _(tileLayers, tile, writeData, done) {
 
     var tilesIndex = geojsonVt(layer, {
         maxZoom: 13,
-        extent: 4096*2,
         buffer: 0,
         tolerance: 1, // todo: faster if >0? (default is 3)
         indexMaxZoom: 13
