@@ -4,7 +4,7 @@ var fs = require('fs');
 var geojsonVt = require('geojson-vt');
 var vtpbf = require('vt-pbf');
 var zlib = require('zlib');
-var MBTiles = require('mbtiles');
+var mbtilesPromises = require('./mbtiles-promises');
 var queue = require('queue-async');
 var turf = require('turf');
 var lineclip = require('lineclip');
@@ -26,22 +26,20 @@ var users = {};
 if (filter.experience.file)
     users = JSON.parse(fs.readFileSync(filter.experience.file));
 
+
 // Filter features touched by list of users defined by users.json
 module.exports = function _(tileLayers, tile, writeData, done) {
     if (!initialized) {
-        geomTiles = new MBTiles(intermediateDir + (filter.id || filter.experience.field)+'.geom.'+process.pid+'.mbtiles', function(err) {
-            if (err) return console.error('""""', err);
-            geomTiles.startWriting(function(err) {
-                if (err) return console.error('####', err);
-                aggrTiles = new MBTiles(intermediateDir + (filter.id || filter.experience.field)+'.aggr.'+process.pid+'.mbtiles', function(err) {
-                    if (err) return console.error('""""', err);
-                    aggrTiles.startWriting(function(err) {
-                        if (err) return console.error('####', err);
-                        initialized = true;
-                        _(tileLayers, tile, writeData, done); // restart process after initialization
-                    });
-                });
-            });
+        Promise.all([
+            mbtilesPromises.openWrite(intermediateDir + (filter.id || filter.experience.field)+'.geom.'+process.pid+'.mbtiles'),
+            mbtilesPromises.openWrite(intermediateDir + (filter.id || filter.experience.field)+'.aggr.'+process.pid+'.mbtiles')
+        ]).then(function(dbHandles) {
+            geomTiles = dbHandles[0];
+            aggrTiles = dbHandles[1];
+            initialized = true;
+            _(tileLayers, tile, writeData, done); // restart process after initialization
+        }).catch(function(err) {
+            console.error("error while opening db", err);
         });
         return;
     }
@@ -216,8 +214,6 @@ module.exports = function _(tileLayers, tile, writeData, done) {
             var pbfout = zlib.gzipSync(vtpbf.fromGeojsonVt({ 'osm': tileData }));
             aggrTiles.putTile(tile[2], tile[0], tile[1], pbfout, done);
         }
-        //writeData(JSON.stringify(output)+'\n');
-        //done();
     });
     resultQueue.await(function(err) {
         if (err) console.error(err);
@@ -228,18 +224,13 @@ module.exports = function _(tileLayers, tile, writeData, done) {
 
 
 process.on('SIGHUP', function() {
-    //console.error('before exit');
-    geomTiles.stopWriting(function(err) {
-        if (err) { console.log(err); process.exit(13); }
-        geomTiles.close(function(err) {
-            if (err) { console.log(err); process.exit(13); }
-            aggrTiles.stopWriting(function(err) {
-                if (err) { console.log(err); process.exit(13); }
-                aggrTiles.close(function(err) {
-                    if (err) { console.log(err); process.exit(13); }
-                    process.exit(0);
-                });
-            });
-        });
+    Promise.all([
+        mbtilesPromises.closeWrite(geomTiles),
+        mbtilesPromises.closeWrite(aggrTiles)
+    ]).then(function() {
+        process.exit(0);
+    }).catch(function(err) {
+        console.error("error while closing db", err);
+        process.exit(13);
     });
 });

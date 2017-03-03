@@ -2,7 +2,7 @@
 'use strict';
 
 var mbtiles = require('tile-reduce/src/mbtiles.js'); // todo: hacky?
-var MBTiles = require('mbtiles');
+var mbtilesPromises = require('./mbtiles-promises');
 var queue = require('queue-async');
 var binarysplit = require('binary-split');
 var turf = require('turf');
@@ -19,7 +19,7 @@ const intermediateDir = './intermediate/';
 var binningFactor = global.mapOptions.binningFactor; // number of slices in each direction
 var mbtilesPath = global.mapOptions.mbtilesPath;
 
-var initQueue = queue(1);
+var initQueue = queue();
 var outMbtiles;
 
 initQueue.defer(mbtiles, {
@@ -28,10 +28,10 @@ initQueue.defer(mbtiles, {
     raw: false
 });
 initQueue.defer(function(cb) {
-    var db = new MBTiles(mbtilesPath, function(err) {
-        if (err) cb(err);
+    mbtilesPromises.openRead(mbtilesPath)
+    .then(function(dbHandle) {
         var tilesArray = [];
-        var tileStream = db.createZXYStream()
+        var tileStream = dbHandle.createZXYStream()
             .pipe(binarysplit('\n'))
             .on('data', function(line) {
                 var tile = line.toString().split('/');
@@ -40,16 +40,14 @@ initQueue.defer(function(cb) {
             .on('end', function() {
                 cb(null, tilesArray);
             });
-    });
+    }).catch(cb);
 });
 initQueue.defer(function(cb) {
-    outMbtiles = new MBTiles(intermediateDir + 'out.tmp.'+process.pid+'.mbtiles', function(err) {
-        if (err) return console.error('""""', err);
-        outMbtiles.startWriting(function(err) {
-            if (err) console.error('""""', err);
-            cb(err);
-        });
-    });
+    mbtilesPromises.openWrite(intermediateDir + 'out.tmp.'+process.pid+'.mbtiles')
+    .then(function(dbHandle) {
+        outMbtiles = dbHandle;
+        cb();
+    }).catch(cb);
 })
 
 var todoList = {},
@@ -200,23 +198,21 @@ function processMeta(tile, writeData, done) {
             done();
         } else {
             var pbfout = zlib.gzipSync(vtpbf.fromGeojsonVt({ 'osm': tileData }));
+            // write to mbtiles file
             outMbtiles.putTile(tile[2], tile[0], tile[1], pbfout, done);
         }
-        //// write to stdout
-        //writeData(JSON.stringify(output)+'\n');
-        //done();
     });
 }
 
 
 
 process.on('SIGHUP', function() {
-    //console.error('before exit');
     if (!outMbtiles) return process.exit(12);
-    outMbtiles.stopWriting(function(err) {
-        if (err) { console.log(err); process.exit(13); }
-        outMbtiles.close(function(err) {
-            process.exit(0);
-        });
+    mbtilesPromises.closeWrite(outMbtiles)
+    .then(function() {
+        process.exit(0);
+    }).catch(function(err) {
+        console.error("error while closing db", err);
+        process.exit(13);
     });
 });
