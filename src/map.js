@@ -13,6 +13,8 @@ var rbush = require('rbush');
 var lodash = require('lodash');
 var stats = require('simple-statistics');
 
+const intermediateDir = './intermediate/';
+
 var binningFactor = global.mapOptions.binningFactor; // number of slices in each direction
 
 var filter = JSON.parse(fs.readFileSync(global.mapOptions.filterPath));
@@ -27,11 +29,11 @@ if (filter.experience.file)
 // Filter features touched by list of users defined by users.json
 module.exports = function _(tileLayers, tile, writeData, done) {
     if (!initialized) {
-        geomTiles = new MBTiles((filter.id || filter.experience.field)+'.geom.'+process.pid+'.mbtiles', function(err) {
+        geomTiles = new MBTiles(intermediateDir + (filter.id || filter.experience.field)+'.geom.'+process.pid+'.mbtiles', function(err) {
             if (err) return console.error('""""', err);
             geomTiles.startWriting(function(err) {
                 if (err) return console.error('####', err);
-                aggrTiles = new MBTiles((filter.id || filter.experience.field)+'.aggr.'+process.pid+'.mbtiles', function(err) {
+                aggrTiles = new MBTiles(intermediateDir + (filter.id || filter.experience.field)+'.aggr.'+process.pid+'.mbtiles', function(err) {
                     if (err) return console.error('""""', err);
                     aggrTiles.startWriting(function(err) {
                         if (err) return console.error('####', err);

@@ -14,6 +14,7 @@ var vtpbf = require('vt-pbf');
 var zlib = require('zlib');
 var MBTiles = require('mbtiles');
 
+const intermediateDir = './intermediate/';
 
 var binningFactor = global.mapOptions.binningFactor; // number of slices in each direction
 var mbtilesPath = global.mapOptions.mbtilesPath;
@@ -42,7 +43,7 @@ initQueue.defer(function(cb) {
     });
 });
 initQueue.defer(function(cb) {
-    outMbtiles = new MBTiles('out.tmp.'+process.pid+'.mbtiles', function(err) {
+    outMbtiles = new MBTiles(intermediateDir + 'out.tmp.'+process.pid+'.mbtiles', function(err) {
         if (err) return console.error('""""', err);
         outMbtiles.startWriting(function(err) {
             if (err) console.error('""""', err);
