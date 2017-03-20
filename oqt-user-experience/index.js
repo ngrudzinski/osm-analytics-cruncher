@@ -17,11 +17,12 @@ tileReduce({
 })
 .on('reduce', function(d) {
     for (var u in d) {
-        if (!users[u]) users[u] = { objects:0, highways: 0.0, waterways: 0.0, buildings: 0 };
+        if (!users[u]) users[u] = { objects:0, highways: 0.0, waterways: 0.0, railways: 0.0, buildings: 0 };
         users[u].objects   += d[u].objects;
         users[u].highways  += d[u].highways;
         users[u].waterways  += d[u].waterways;
         users[u].buildings += d[u].buildings;
+        users[u].railways += d[u].railways;
     }
 })
 .on('end', function() {

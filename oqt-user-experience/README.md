@@ -15,6 +15,7 @@ JSON with a set of properties for each user (uid), e.g.
         "objects": 123,
         "highways": 1.37,
         "waterways": 7.98,
-        "buildings": 4
+        "buildings": 4,
+        "railways": 5.00
     },
    …
